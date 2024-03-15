@@ -14,7 +14,7 @@ public class pantallaBoroa extends javax.swing.JFrame {
         HiloHoraFecha horaFecha = new HiloHoraFecha(LB_hora, LB_fecha);
         Thread proc = new Thread(horaFecha);
         proc.start();
-        adminBarra = new barra(PB_barra);
+        adminBarra = new barra(PB_barra, TA_areaText);
     }
 
     @SuppressWarnings("unchecked")
@@ -193,7 +193,7 @@ public class pantallaBoroa extends javax.swing.JFrame {
         });
     }
 
-    public void subirArchivo() {
+    public void guardarArchivo() {
         JFileChooser jfchooser = new JFileChooser();
         FileNameExtensionFilter filtro = new FileNameExtensionFilter(
                 "Archivos de Texto", "txt");
@@ -202,44 +202,36 @@ public class pantallaBoroa extends javax.swing.JFrame {
         FileWriter fw = null;
         BufferedWriter bw = null;
         if (seleccion == JFileChooser.APPROVE_OPTION) {
-            LB_valiBarra.setText("Abriendo Archivo");
-            adminBarra.start();
-            
-            if (PB_barra.getValue() == PB_barra.getMaximum()) {
-                LB_valiBarra.setText("Archivo Abierto");
-                try {
-
-                    File file = null;
-                    if (jfchooser.getFileFilter().getDescription().equals(
-                            "Archivos de Texto")) {
+            try {
+                File file = null;
+                if (jfchooser.getFileFilter().getDescription().equals(
+                        "Archivos de Texto")) {
                     file = new File(jfchooser.getSelectedFile().getPath() + ".txt");
-                    } else {
-                        file = jfchooser.getSelectedFile();
-                    }
-                    fw = new FileWriter(file);
-                    bw = new BufferedWriter(fw);
-                    bw.write(TA_areaText.getText());
-                    TA_areaText.setText("");
-                    bw.flush();
-                    JOptionPane.showMessageDialog(this,
-                            "Archivo guardado");
+                } else {
+                    file = jfchooser.getSelectedFile();
+                }
+                fw = new FileWriter(file);
+                bw = new BufferedWriter(fw);
+                bw.write(TA_areaText.getText());
+                TA_areaText.setText("");
+                bw.flush();
+                JOptionPane.showMessageDialog(this,
+                        "Archivo guardado");
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                try {
-                    bw.close();
-                    fw.close();
-                } catch (IOException ex) {
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            try {
+                bw.close();
+                fw.close();
+            } catch (IOException ex) {
+            }
+
         }
     }
 
-    public void guardarArchivo() {
+    public void subirArchivo() {
         File file = null;
-        FileReader fr = null;
-        BufferedReader br = null;
         TA_areaText.setText("");
         try {
             JFileChooser jfchooser = new JFileChooser("./");
@@ -248,27 +240,18 @@ public class pantallaBoroa extends javax.swing.JFrame {
             jfchooser.setFileFilter(filtro);
             int seleccion = jfchooser.showOpenDialog(this);
             if (seleccion == JFileChooser.APPROVE_OPTION) {
-
-                file = jfchooser.getSelectedFile();
-                fr = new FileReader(file);
-                br = new BufferedReader(fr);
-                String linea;
-                TA_areaText.setText("");
-
-                while ((linea = br.readLine()) != null) {
-                    TA_areaText.append(linea);
-                    TA_areaText.append("\n");
+                try {
+                    file = jfchooser.getSelectedFile();
+                    adminBarra.setArchivo(file);
+                    adminBarra.start();
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Ya hay un archivo abierto");
                 }
 
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        try {
-            br.close();
-            fr.close();
-        } catch (IOException ex) {
         }
     }
 
